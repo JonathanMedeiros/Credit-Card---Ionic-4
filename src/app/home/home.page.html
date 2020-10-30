@@ -1,0 +1,149 @@
+<ion-content>
+  <ion-row>
+    <ion-col size="12">
+      <div class="wrapper" >
+        <div class="card-form" >
+          <div class="card-list" >
+            <div class="card-item" [ngClass]="{'-active':card.isCardFlipped}" (click)="flipCard(!card.isCardFlipped)" >
+              <div class="card-item__side -front">
+
+                <div class="card-item__focus" [ngClass]="{'-active':true}"></div>
+                <div class="card-item__cover">
+                  <img [src]="'./assets/img/creditCard/' + card.currentCardBackground + '.jpeg'" class="card-item__bg">
+                </div>
+                <div class="card-item__wrapper">
+                  <div class="card-item__top">
+                    <img src = "./assets/img/creditCard/chip.png" class="card-item__chip">
+                    <div class="card-item__type">
+                      <div name="slide-fade-up">
+                        <img [src]="'./assets/img/creditCard/' + getCardType() + '.png'" *ngIf="getCardType" class="card-item__typeImg">
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <label for="cardNumber" class="card-item__number" ref="cardNumber">
+                      <span>
+                        <div name="slide-fade-up" *ngIf="form.value.numbercard; else elseBlock">
+                          {{form.value.numbercard}}
+                        </div>
+                        <ng-template #elseBlock>
+                          <div name="slide-fade-up">
+                            0000 0000 0000 0000
+                          </div>
+                        </ng-template>
+                      </span>
+                  </label>
+
+                  <div class="card-item__content">
+                    <label for="cardName" class="card-item__info" ref="cardName">
+                      <div class="card-item__holder">Nome do Titular</div>
+                      <div name="slide-fade-up">
+                        <div class="card-item__name" *ngIf="form.value.holder; else cardNameDefault">
+                          <div name="slide-fade-right">
+                            <span class="card-item__nameItem">{{form.value.holder}}</span>
+                          </div>
+                        </div>
+                        <ng-template #cardNameDefault class="card-item__name" >NOME COMPLETO</ng-template>
+                      </div>
+                    </label>
+                    <div class="card-item__date" ref="cardDate">
+                      <label for="cardMonth" class="card-item__dateTitle">Validade</label>
+                      <label for="cardMonth" class="card-item__dateItem">
+                        <div name="slide-fade-up">
+                          <div *ngIf="form.value.month; else cardMontDefault">
+                            <span>{{form.value.month}}</span>
+                          </div>
+                          <ng-template #cardMontDefault>
+                            <span class="semValor">MÊS</span>
+                          </ng-template>
+                        </div>
+                      </label>
+                      /
+                      <label for="cardYear" class="card-item__dateItem">
+                        <div name="slide-fade-up">
+                          <div *ngIf="form.value.year; else cardYearDefault" >
+                            <span>{{form.value.year.slice(2,4)}}</span>
+                          </div>
+                          <ng-template #cardYearDefault>
+                            <span class="semValor">ANO</span>
+                          </ng-template>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="card-item__side -back">
+                <div class="card-item__cover">
+                  <img [src]="'./assets/img/creditCard/' + card.currentCardBackground + '.jpeg'" class="card-item__bg">
+                </div>
+                <div class="card-item__band"></div>
+                <div class="card-item__cvv">
+                  <div class="card-item__cvvTitle">CVV</div>
+                  <div class="card-item__cvvBand">
+                    <span> {{form.value.cvv}} </span>
+                  </div>
+                  <div class="card-item__type">
+                      <img [src]="'./assets/img/creditCard/' + getCardType() + '.png'" *ngIf="getCardType()" class="card-item__typeImg">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form [formGroup]="form">
+            <div class="card-form__inner">
+              <div class="card-input">
+                <label for="cardNumber" class="card-input__label">Número do cartão</label>
+                <ion-input formControlName="numbercard" type="text" id="cardNumber" class="card-input__input" placeholder="0000 0000 0000 0000"
+                [brmasker]="card.maskCostum" #cardNumber (ionInput)="blurInputCreditCard()"></ion-input>
+              </div>
+              <div class="card-input">
+                <label for="cardName" class="card-input__label">Titular do Cartão</label>
+                <ion-input formControlName="holder" type="text" id="cardName" class="card-input__input"></ion-input>
+              </div>
+              <div class="card-form__row">
+                <div class="card-form__col">
+                  <div class="card-form__group">
+                    <label for="cardMonth" class="card-input__label">Data de Expiração</label>
+                    <select formControlName="month" class="card-input__input -select" id="cardMonth" (ionBlur)="blurInput($event)">
+                      <option value="" disabled selected>Mês</option>
+                      <option  *ngFor="let n of loop; let i = index" [value]="i < 10 ? '0' + (i+1) : (i+1)">
+                          {{(i+1) < 10 ? '0' + (i+1) : (i+1)}}
+                      </option>
+                    </select>
+                    <select formControlName="year" class="card-input__input -select" id="cardYear" (ionBlur)="blurInput($event)">
+                      <option value="" disabled selected>Ano</option>
+                      <option *ngFor="let n of loop; let i = index" [value]="i + card.minCardYear">
+                          {{(i + card.minCardYear)}}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="card-form__col -cvv">
+                  <div class="card-input">
+                    <label for="cardCvv" class="card-input__label">CVV</label>
+                    <ion-input formControlName="cvv" type="text" class="card-input__input" id="cardCvv" maxlength="4" 
+                    (ionFocus)="flipCard(!card.isCardFlipped)" (ionBlur)="flipCard(!card.isCardFlipped)" autocomplete="off"></ion-input>
+                  </div>
+                </div>
+              </div>
+            
+              <button class="card-form__button">
+                Salvar
+              </button>
+            </div>
+          </form>
+          
+        </div>
+      </div>
+    </ion-col>
+  </ion-row>
+</ion-content>
+
+
+
+
+
